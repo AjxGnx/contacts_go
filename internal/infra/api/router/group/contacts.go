@@ -15,13 +15,13 @@ type contacts struct {
 	handler handler.Contacts
 }
 
-func NewContactsGroup(handler handler.Contacts) Contacts {
-	return contacts{
+func NewContacts(handler handler.Contacts) Contacts {
+	return &contacts{
 		handler,
 	}
 }
 
-func (routes contacts) Resource(c *echo.Group) {
+func (routes *contacts) Resource(c *echo.Group) {
 	groupPath := c.Group(contactsPath)
 	groupPath.POST("", routes.handler.Create)
 }
