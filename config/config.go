@@ -10,6 +10,11 @@ import (
 type Config struct {
 	ServerHost string `required:"true" split_words:"true"`
 	ServerPort int    `required:"true" split_words:"true"`
+	DBHost     string `required:"true" split_words:"true"`
+	DBPort     int    `required:"true" split_words:"true"`
+	DBUser     string `required:"true" split_words:"true"`
+	DBName     string `required:"true" split_words:"true"`
+	DBPass     string `required:"true" split_words:"true"`
 }
 
 var once sync.Once

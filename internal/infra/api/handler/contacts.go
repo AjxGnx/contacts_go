@@ -19,5 +19,6 @@ func NewContactsHandler() Contacts {
 
 func (c contacts) Create(ctx echo.Context) error {
 	fmt.Println("metodo para crear un contacto")
+
 	return nil
 }

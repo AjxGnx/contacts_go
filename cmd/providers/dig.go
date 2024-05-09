@@ -1,6 +1,7 @@
 package providers
 
 import (
+	"github.com/AjxGnx/contacts-go/internal/infra/adapters/pg"
 	"github.com/AjxGnx/contacts-go/internal/infra/api/handler"
 	"github.com/AjxGnx/contacts-go/internal/infra/api/router"
 	"github.com/AjxGnx/contacts-go/internal/infra/api/router/group"
@@ -16,6 +17,8 @@ func BuildContainer() *dig.Container {
 	_ = Container.Provide(func() *echo.Echo {
 		return echo.New()
 	})
+
+	_ = Container.Provide(pg.ConnInstance)
 
 	_ = Container.Provide(handler.NewContactsHandler)
 	_ = Container.Provide(group.NewContactsGroup)
