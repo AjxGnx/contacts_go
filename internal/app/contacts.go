@@ -11,6 +11,7 @@ type Contacts interface {
 	GetByID(id uint) (models.Contact, error)
 	Update(id uint, contact dto.Contact) (models.Contact, error)
 	Delete(id uint) error
+	Get(paginate dto.Paginate) (*models.Paginator, error)
 }
 
 type contacts struct {
@@ -45,4 +46,8 @@ func (app *contacts) Delete(id uint) error {
 	}
 
 	return app.repo.Delete(id)
+}
+
+func (app *contacts) Get(paginate dto.Paginate) (*models.Paginator, error) {
+	return app.repo.Get(models.Paginator{Page: paginate.Page, Limit: paginate.Limit})
 }

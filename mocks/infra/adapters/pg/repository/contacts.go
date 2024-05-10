@@ -58,6 +58,36 @@ func (_m *Contacts) Delete(id uint) error {
 	return r0
 }
 
+// Get provides a mock function with given fields: paginate
+func (_m *Contacts) Get(paginate models.Paginator) (*models.Paginator, error) {
+	ret := _m.Called(paginate)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Get")
+	}
+
+	var r0 *models.Paginator
+	var r1 error
+	if rf, ok := ret.Get(0).(func(models.Paginator) (*models.Paginator, error)); ok {
+		return rf(paginate)
+	}
+	if rf, ok := ret.Get(0).(func(models.Paginator) *models.Paginator); ok {
+		r0 = rf(paginate)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Paginator)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(models.Paginator) error); ok {
+		r1 = rf(paginate)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetByID provides a mock function with given fields: id
 func (_m *Contacts) GetByID(id uint) (models.Contact, error) {
 	ret := _m.Called(id)

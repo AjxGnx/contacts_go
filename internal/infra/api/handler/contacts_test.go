@@ -19,7 +19,7 @@ import (
 
 type contactsTestSuite struct {
 	suite.Suite
-	Contacts  *mocks.Contacts
+	app       *mocks.Contacts
 	underTest Contacts
 }
 
@@ -28,8 +28,8 @@ func TestContactsSuite(t *testing.T) {
 }
 
 func (suite *contactsTestSuite) SetupTest() {
-	suite.Contacts = &mocks.Contacts{}
-	suite.underTest = NewContacts(suite.Contacts)
+	suite.app = &mocks.Contacts{}
+	suite.underTest = NewContacts(suite.app)
 }
 
 func (suite *contactsTestSuite) TestCreate_WhenBindFail() {
@@ -56,7 +56,7 @@ func (suite *contactsTestSuite) TestCreate_WhenFailByDuplicateContact() {
 	setupCase := SetupControllerCase(http.MethodPost, "/api/contacts/", bytes.NewBuffer(body))
 	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	suite.Contacts.Mock.On("Create", contact).Return(models.Contact{}, err)
+	suite.app.Mock.On("Create", contact).Return(models.Contact{}, err)
 
 	suite.ErrorAs(suite.underTest.Create(setupCase.context), &httpError)
 	suite.Equal(http.StatusBadRequest, httpError.Code)
@@ -74,7 +74,7 @@ func (suite *contactsTestSuite) TestCreate_WhenFailByInternalError() {
 	setupCase := SetupControllerCase(http.MethodPost, "/api/contacts/", bytes.NewBuffer(body))
 	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	suite.Contacts.Mock.On("Create", contact).Return(models.Contact{}, err)
+	suite.app.Mock.On("Create", contact).Return(models.Contact{}, err)
 
 	suite.ErrorAs(suite.underTest.Create(setupCase.context), &httpError)
 	suite.Equal(http.StatusInternalServerError, httpError.Code)
@@ -90,7 +90,7 @@ func (suite *contactsTestSuite) TestCreate_WhenSuccess() {
 	setupCase := SetupControllerCase(http.MethodPost, "/api/contacts/", bytes.NewBuffer(body))
 	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
-	suite.Contacts.Mock.On("Create", contact).
+	suite.app.Mock.On("Create", contact).
 		Return(models.Contact{Name: contact.Name, PhoneNumber: contact.PhoneNumber}, nil)
 
 	suite.NoError(suite.underTest.Create(setupCase.context))
@@ -100,7 +100,7 @@ func (suite *contactsTestSuite) TestGetByID_WhenSuccess() {
 	paramValue := 10
 	param := "id"
 
-	suite.Contacts.Mock.On("GetByID", uint(paramValue)).
+	suite.app.Mock.On("GetByID", uint(paramValue)).
 		Return(models.Contact{ID: 10}, nil)
 
 	setupCase := SetupControllerCase(http.MethodPost, "/api/contacts/10", nil)
@@ -119,7 +119,7 @@ func (suite *contactsTestSuite) TestGetByID_WhenContactNotFound() {
 	param := "id"
 	expectedError := errors.New("record not found")
 
-	suite.Contacts.Mock.On("GetByID", uint(paramValue)).
+	suite.app.Mock.On("GetByID", uint(paramValue)).
 		Return(models.Contact{}, expectedError)
 
 	setupCase := SetupControllerCase(http.MethodPost, "/api/contacts/10", nil)
@@ -138,7 +138,7 @@ func (suite *contactsTestSuite) TestGetByID_WhenFail() {
 	param := "id"
 	expectedError := errors.New("some error")
 
-	suite.Contacts.Mock.On("GetByID", uint(paramValue)).
+	suite.app.Mock.On("GetByID", uint(paramValue)).
 		Return(models.Contact{}, expectedError)
 
 	setupCase := SetupControllerCase(http.MethodPost, "/api/contacts/10", nil)
@@ -161,7 +161,7 @@ func (suite *contactsTestSuite) TestUpdate_WhenSuccess() {
 
 	body, _ := json.Marshal(contact)
 
-	suite.Contacts.Mock.On("Update", uint(paramValue), contact).
+	suite.app.Mock.On("Update", uint(paramValue), contact).
 		Return(models.Contact{ID: 10}, nil)
 
 	setupCase := SetupControllerCase(http.MethodPut, "/api/contacts/10", bytes.NewBuffer(body))
@@ -188,7 +188,7 @@ func (suite *contactsTestSuite) TestUpdate_WhenContactNotFound() {
 
 	body, _ := json.Marshal(contact)
 
-	suite.Contacts.Mock.On("Update", uint(paramValue), contact).
+	suite.app.Mock.On("Update", uint(paramValue), contact).
 		Return(models.Contact{}, expectedError)
 
 	setupCase := SetupControllerCase(http.MethodPut, "/api/contacts/10", bytes.NewBuffer(body))
@@ -215,7 +215,7 @@ func (suite *contactsTestSuite) TestUpdate_WhenFail() {
 
 	body, _ := json.Marshal(contact)
 
-	suite.Contacts.Mock.On("Update", uint(paramValue), contact).
+	suite.app.Mock.On("Update", uint(paramValue), contact).
 		Return(models.Contact{}, expectedError)
 
 	setupCase := SetupControllerCase(http.MethodPut, "/api/contacts/10", bytes.NewBuffer(body))
@@ -243,7 +243,7 @@ func (suite *contactsTestSuite) TestDelete_WhenSuccess() {
 	paramValue := 10
 	param := "id"
 
-	suite.Contacts.Mock.On("Delete", uint(paramValue)).
+	suite.app.Mock.On("Delete", uint(paramValue)).
 		Return(nil)
 
 	setupCase := SetupControllerCase(http.MethodDelete, "/api/contacts/10", nil)
@@ -262,7 +262,7 @@ func (suite *contactsTestSuite) TestDelete_WhenContactNotFound() {
 	param := "id"
 	expectedError := errors.New("record not found")
 
-	suite.Contacts.Mock.On("Delete", uint(paramValue)).
+	suite.app.Mock.On("Delete", uint(paramValue)).
 		Return(expectedError)
 
 	setupCase := SetupControllerCase(http.MethodDelete, "/api/contacts/10", nil)
@@ -281,7 +281,7 @@ func (suite *contactsTestSuite) TestDelete_WhenFail() {
 	param := "id"
 	expectedError := errors.New("some error")
 
-	suite.Contacts.Mock.On("Delete", uint(paramValue)).
+	suite.app.Mock.On("Delete", uint(paramValue)).
 		Return(expectedError)
 
 	setupCase := SetupControllerCase(http.MethodDelete, "/api/contacts/10", nil)
@@ -290,6 +290,41 @@ func (suite *contactsTestSuite) TestDelete_WhenFail() {
 	setupCase.context.SetParamValues(strconv.Itoa(paramValue))
 
 	suite.ErrorAs(suite.underTest.Delete(setupCase.context), &httpError)
+	suite.Equal(http.StatusInternalServerError, httpError.Code)
+}
+
+func (suite *contactsTestSuite) TestGet_WhenSuccess() {
+	paginateValues := dto.Paginate{
+		Page:  1,
+		Limit: 10,
+	}
+
+	suite.app.Mock.On("Get", paginateValues).
+		Return(&models.Paginator{}, nil)
+
+	setupCase := SetupControllerCase(http.MethodGet, "/api/contacts/?page=1&limit=10", nil)
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	suite.NoError(suite.underTest.Get(setupCase.context))
+	suite.Equal(http.StatusOK, setupCase.Res.Code)
+}
+
+func (suite *contactsTestSuite) TestGet_WhenFail() {
+	var httpError *echo.HTTPError
+
+	paginateValues := dto.Paginate{
+		Page:  1,
+		Limit: 10,
+	}
+	expectedError := errors.New("some error")
+
+	suite.app.Mock.On("Get", paginateValues).
+		Return(&models.Paginator{}, expectedError)
+
+	setupCase := SetupControllerCase(http.MethodGet, "/api/contacts/?page=1&limit=10", nil)
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	suite.ErrorAs(suite.underTest.Get(setupCase.context), &httpError)
 	suite.Equal(http.StatusInternalServerError, httpError.Code)
 }
 

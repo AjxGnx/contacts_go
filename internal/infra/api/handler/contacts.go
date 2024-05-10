@@ -16,6 +16,7 @@ type Contacts interface {
 	GetByID(ctx echo.Context) error
 	Update(ctx echo.Context) error
 	Delete(ctx echo.Context) error
+	Get(ctx echo.Context) error
 }
 
 type contacts struct {
@@ -95,6 +96,27 @@ func (handler *contacts) Delete(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, dto.Message{
 		Message: "contact successfully deleted",
 	})
+}
+
+func (handler *contacts) Get(context echo.Context) error {
+	page, _ := strconv.Atoi(context.QueryParam("page"))
+	limit, _ := strconv.Atoi(context.QueryParam("limit"))
+	paginate := dto.Paginate{
+		Page:  page,
+		Limit: limit,
+	}
+	paginate.SetDefaultLimitAndPage()
+
+	categorizations, err := handler.app.Get(paginate)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return context.JSON(http.StatusOK, dto.Message{
+		Message: fmt.Sprintf("contacts successfully loaded"),
+		Data:    categorizations,
+	})
+
 }
 
 func errorValidator(errMessage string, id ...int) error {

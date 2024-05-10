@@ -163,3 +163,30 @@ func (suite *contactsTestSuite) TestDelete_WhenFail() {
 
 	suite.Error(suite.underTest.Delete(uint(1)))
 }
+
+func (suite *contactsTestSuite) TestGet_WhenSuccess() {
+	paginate := dto.Paginate{
+		Page:  1,
+		Limit: 10,
+	}
+	suite.repo.Mock.On("Get", models.Paginator{Page: paginate.Page, Limit: paginate.Limit}).
+		Return(&models.Paginator{}, nil)
+
+	_, err := suite.underTest.Get(paginate)
+
+	suite.NoError(err)
+}
+
+func (suite *contactsTestSuite) TestGet_WhenFail() {
+	paginate := dto.Paginate{
+		Page:  1,
+		Limit: 10,
+	}
+	expectedError := errors.New("some error")
+	suite.repo.Mock.On("Get", models.Paginator{Page: paginate.Page, Limit: paginate.Limit}).
+		Return(&models.Paginator{}, expectedError)
+
+	_, err := suite.underTest.Get(paginate)
+
+	suite.Error(err)
+}
