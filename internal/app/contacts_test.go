@@ -62,3 +62,25 @@ func (suite *contactsTestSuite) TestCreate_WhenFail() {
 	suite.Error(err)
 	suite.Equal(models.Contact{}, contactModel)
 }
+
+func (suite *contactsTestSuite) TestGetByID_WhenSuccess() {
+	expected := models.Contact{Name: "test", PhoneNumber: "+570000000", ID: 1}
+
+	suite.Contacts.Mock.On("GetByID", uint(1)).Return(expected, nil)
+
+	contactModel, err := suite.underTest.GetByID(uint(1))
+
+	suite.NoError(err)
+	suite.Equal(expected, contactModel)
+}
+
+func (suite *contactsTestSuite) TestGetByID_WhenFail() {
+	expectedError := errors.New("some error")
+
+	suite.Contacts.Mock.On("GetByID", uint(1)).Return(models.Contact{}, expectedError)
+
+	contactModel, err := suite.underTest.GetByID(uint(1))
+
+	suite.Error(err)
+	suite.Equal(models.Contact{}, contactModel)
+}

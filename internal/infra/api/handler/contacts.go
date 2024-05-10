@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/AjxGnx/contacts-go/internal/app"
@@ -12,6 +13,7 @@ import (
 
 type Contacts interface {
 	Create(ctx echo.Context) error
+	GetByID(ctx echo.Context) error
 }
 
 type contacts struct {
@@ -43,5 +45,25 @@ func (handler *contacts) Create(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, dto.Message{
 		Message: "contact created successfully",
 		Data:    result,
+	})
+}
+
+func (handler *contacts) GetByID(context echo.Context) error {
+	id, _ := strconv.Atoi(context.Param("id"))
+
+	contact, err := handler.app.GetByID(uint(id))
+
+	if err != nil {
+		if err.Error() == "record not found" {
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("the contact: %v does not exist", id))
+		}
+
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+
+	}
+
+	return context.JSON(http.StatusOK, dto.Message{
+		Message: "contact successfully loaded",
+		Data:    contact,
 	})
 }

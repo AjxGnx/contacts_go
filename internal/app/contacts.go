@@ -8,6 +8,7 @@ import (
 
 type Contacts interface {
 	Create(contact dto.Contact) (models.Contact, error)
+	GetByID(id uint) (models.Contact, error)
 }
 
 type contacts struct {
@@ -22,4 +23,8 @@ func NewContacts(repo repository.Contacts) Contacts {
 
 func (app *contacts) Create(contact dto.Contact) (models.Contact, error) {
 	return app.repo.Create(contact.ToModel())
+}
+
+func (app *contacts) GetByID(id uint) (models.Contact, error) {
+	return app.repo.GetByID(id)
 }

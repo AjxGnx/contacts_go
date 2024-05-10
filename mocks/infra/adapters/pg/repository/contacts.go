@@ -40,6 +40,34 @@ func (_m *Contacts) Create(contact models.Contact) (models.Contact, error) {
 	return r0, r1
 }
 
+// GetByID provides a mock function with given fields: id
+func (_m *Contacts) GetByID(id uint) (models.Contact, error) {
+	ret := _m.Called(id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByID")
+	}
+
+	var r0 models.Contact
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uint) (models.Contact, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(uint) models.Contact); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(models.Contact)
+	}
+
+	if rf, ok := ret.Get(1).(func(uint) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewContacts creates a new instance of Contacts. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewContacts(t interface {
