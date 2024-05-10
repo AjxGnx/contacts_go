@@ -84,3 +84,58 @@ func (suite *contactsTestSuite) TestGetByID_WhenFail() {
 	suite.Error(err)
 	suite.Equal(models.Contact{}, contactModel)
 }
+
+func (suite *contactsTestSuite) TestUpdate_WhenSuccess() {
+	contact := dto.Contact{
+		Name:        "test",
+		PhoneNumber: "+570000000",
+	}
+
+	expected := models.Contact{Name: contact.Name, PhoneNumber: contact.PhoneNumber, ID: 1}
+
+	suite.Contacts.Mock.On("GetByID", uint(1)).Return(models.Contact{}, nil)
+	suite.Contacts.Mock.On("Update", uint(1), models.Contact{
+		Name:        contact.Name,
+		PhoneNumber: contact.PhoneNumber,
+	}).Return(expected, nil)
+
+	contactModel, err := suite.underTest.Update(uint(1), contact)
+
+	suite.NoError(err)
+	suite.Equal(expected, contactModel)
+}
+
+func (suite *contactsTestSuite) TestUpdate_WhenFail() {
+	contact := dto.Contact{
+		Name:        "test",
+		PhoneNumber: "+570000000",
+	}
+
+	expectedError := errors.New("some error")
+
+	suite.Contacts.Mock.On("GetByID", uint(1)).Return(models.Contact{}, nil)
+	suite.Contacts.Mock.On("Update", uint(1), models.Contact{
+		Name:        contact.Name,
+		PhoneNumber: contact.PhoneNumber,
+	}).Return(models.Contact{}, expectedError)
+
+	contactModel, err := suite.underTest.Update(uint(1), contact)
+
+	suite.Error(err)
+	suite.Equal(models.Contact{}, contactModel)
+}
+
+func (suite *contactsTestSuite) TestUpdate_WhenGetByIDFail() {
+	contact := dto.Contact{
+		Name:        "test",
+		PhoneNumber: "+570000000",
+	}
+	expectedError := errors.New("some error")
+
+	suite.Contacts.Mock.On("GetByID", uint(1)).Return(models.Contact{}, expectedError)
+
+	contactModel, err := suite.underTest.Update(uint(1), contact)
+
+	suite.Error(err)
+	suite.Equal(models.Contact{}, contactModel)
+}

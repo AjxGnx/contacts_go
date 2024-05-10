@@ -112,7 +112,7 @@ func (suite *contactsTestSuite) TestGetByID_WhenSuccess() {
 	suite.Equal(http.StatusOK, setupCase.Res.Code)
 }
 
-func (suite *contactsTestSuite) TestGetByID_WhenNotFound() {
+func (suite *contactsTestSuite) TestGetByID_WhenContactNotFound() {
 	var httpError *echo.HTTPError
 
 	paramValue := 10
@@ -148,6 +148,95 @@ func (suite *contactsTestSuite) TestGetByID_WhenFail() {
 
 	suite.ErrorAs(suite.underTest.GetByID(setupCase.context), &httpError)
 	suite.Equal(http.StatusInternalServerError, httpError.Code)
+}
+
+func (suite *contactsTestSuite) TestUpdate_WhenSuccess() {
+	paramValue := 10
+	param := "id"
+
+	contact := dto.Contact{
+		Name:        "test3",
+		PhoneNumber: "+570000002",
+	}
+
+	body, _ := json.Marshal(contact)
+
+	suite.Contacts.Mock.On("Update", uint(paramValue), contact).
+		Return(models.Contact{ID: 10}, nil)
+
+	setupCase := SetupControllerCase(http.MethodPut, "/api/contacts/10", bytes.NewBuffer(body))
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	setupCase.context.SetParamNames(param)
+	setupCase.context.SetParamValues(strconv.Itoa(paramValue))
+
+	suite.NoError(suite.underTest.Update(setupCase.context))
+	suite.Equal(http.StatusOK, setupCase.Res.Code)
+}
+
+func (suite *contactsTestSuite) TestUpdate_WhenContactNotFound() {
+	var httpError *echo.HTTPError
+
+	paramValue := 10
+	param := "id"
+
+	contact := dto.Contact{
+		Name:        "test3",
+		PhoneNumber: "+570000002",
+	}
+
+	expectedError := errors.New("record not found")
+
+	body, _ := json.Marshal(contact)
+
+	suite.Contacts.Mock.On("Update", uint(paramValue), contact).
+		Return(models.Contact{}, expectedError)
+
+	setupCase := SetupControllerCase(http.MethodPut, "/api/contacts/10", bytes.NewBuffer(body))
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	setupCase.context.SetParamNames(param)
+	setupCase.context.SetParamValues(strconv.Itoa(paramValue))
+
+	suite.ErrorAs(suite.underTest.Update(setupCase.context), &httpError)
+	suite.Equal(http.StatusNotFound, httpError.Code)
+}
+
+func (suite *contactsTestSuite) TestUpdate_WhenFail() {
+	var httpError *echo.HTTPError
+
+	paramValue := 10
+	param := "id"
+
+	contact := dto.Contact{
+		Name:        "test3",
+		PhoneNumber: "+570000002",
+	}
+
+	expectedError := errors.New("some error")
+
+	body, _ := json.Marshal(contact)
+
+	suite.Contacts.Mock.On("Update", uint(paramValue), contact).
+		Return(models.Contact{}, expectedError)
+
+	setupCase := SetupControllerCase(http.MethodPut, "/api/contacts/10", bytes.NewBuffer(body))
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	setupCase.context.SetParamNames(param)
+	setupCase.context.SetParamValues(strconv.Itoa(paramValue))
+
+	suite.ErrorAs(suite.underTest.Update(setupCase.context), &httpError)
+	suite.Equal(http.StatusInternalServerError, httpError.Code)
+}
+
+func (suite *contactsTestSuite) TestUpdate_WhenBindFail() {
+	var httpError *echo.HTTPError
+
+	body, _ := json.Marshal("")
+
+	setupCase := SetupControllerCase(http.MethodPost, "/api/contacts/", bytes.NewBuffer(body))
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	suite.ErrorAs(suite.underTest.Update(setupCase.context), &httpError)
+	suite.Equal(http.StatusBadRequest, httpError.Code)
 }
 
 type ControllerCase struct {

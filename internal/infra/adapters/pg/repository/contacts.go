@@ -8,6 +8,7 @@ import (
 type Contacts interface {
 	Create(contact models.Contact) (models.Contact, error)
 	GetByID(id uint) (models.Contact, error)
+	Update(id uint, account models.Contact) (models.Contact, error)
 }
 
 type contacts struct {
@@ -38,4 +39,18 @@ func (repo *contacts) GetByID(id uint) (models.Contact, error) {
 	}
 
 	return contact, nil
+}
+
+func (repo *contacts) Update(id uint, account models.Contact) (models.Contact, error) {
+	result := repo.db.
+		Model(&account).
+		Where("id = ?", id).
+		Updates(account).
+		Scan(&account)
+
+	if result.Error != nil {
+		return account, result.Error
+	}
+
+	return account, nil
 }

@@ -14,6 +14,7 @@ import (
 type Contacts interface {
 	Create(ctx echo.Context) error
 	GetByID(ctx echo.Context) error
+	Update(ctx echo.Context) error
 }
 
 type contacts struct {
@@ -54,16 +55,39 @@ func (handler *contacts) GetByID(context echo.Context) error {
 	contact, err := handler.app.GetByID(uint(id))
 
 	if err != nil {
-		if err.Error() == "record not found" {
-			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("the contact: %v does not exist", id))
-		}
-
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-
+		return errorValidator(err.Error(), id)
 	}
 
 	return context.JSON(http.StatusOK, dto.Message{
 		Message: "contact successfully loaded",
 		Data:    contact,
 	})
+}
+
+func (handler *contacts) Update(ctx echo.Context) error {
+	var contact dto.Contact
+
+	contactID, _ := strconv.Atoi(ctx.Param("id"))
+
+	if err := ctx.Bind(&contact); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	result, err := handler.app.Update(uint(contactID), contact)
+	if err != nil {
+		return errorValidator(err.Error(), contactID)
+	}
+
+	return ctx.JSON(http.StatusOK, dto.Message{
+		Message: "contact updated successfully",
+		Data:    result,
+	})
+}
+
+func errorValidator(errMessage string, id ...int) error {
+	if errMessage == "record not found" {
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("the contact: %v does not exist", id))
+	}
+
+	return echo.NewHTTPError(http.StatusInternalServerError, errMessage)
 }

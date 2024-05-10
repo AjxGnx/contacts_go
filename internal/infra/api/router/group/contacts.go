@@ -25,4 +25,5 @@ func (routes *contacts) Resource(c *echo.Group) {
 	groupPath := c.Group(contactsPath)
 	groupPath.POST("", routes.handler.Create)
 	groupPath.GET(":id", routes.handler.GetByID)
+	groupPath.PUT(":id", routes.handler.Update)
 }

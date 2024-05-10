@@ -70,6 +70,34 @@ func (_m *Contacts) GetByID(id uint) (models.Contact, error) {
 	return r0, r1
 }
 
+// Update provides a mock function with given fields: id, contact
+func (_m *Contacts) Update(id uint, contact dto.Contact) (models.Contact, error) {
+	ret := _m.Called(id, contact)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 models.Contact
+	var r1 error
+	if rf, ok := ret.Get(0).(func(uint, dto.Contact) (models.Contact, error)); ok {
+		return rf(id, contact)
+	}
+	if rf, ok := ret.Get(0).(func(uint, dto.Contact) models.Contact); ok {
+		r0 = rf(id, contact)
+	} else {
+		r0 = ret.Get(0).(models.Contact)
+	}
+
+	if rf, ok := ret.Get(1).(func(uint, dto.Contact) error); ok {
+		r1 = rf(id, contact)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewContacts creates a new instance of Contacts. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewContacts(t interface {
