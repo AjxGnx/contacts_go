@@ -9,6 +9,7 @@ type Contacts interface {
 	Create(contact models.Contact) (models.Contact, error)
 	GetByID(id uint) (models.Contact, error)
 	Update(id uint, account models.Contact) (models.Contact, error)
+	Delete(id uint) error
 }
 
 type contacts struct {
@@ -41,16 +42,28 @@ func (repo *contacts) GetByID(id uint) (models.Contact, error) {
 	return contact, nil
 }
 
-func (repo *contacts) Update(id uint, account models.Contact) (models.Contact, error) {
+func (repo *contacts) Update(id uint, contact models.Contact) (models.Contact, error) {
 	result := repo.db.
-		Model(&account).
+		Model(&contact).
 		Where("id = ?", id).
-		Updates(account).
-		Scan(&account)
+		Updates(contact).
+		Scan(&contact)
 
 	if result.Error != nil {
-		return account, result.Error
+		return contact, result.Error
 	}
 
-	return account, nil
+	return contact, nil
+}
+
+func (repo *contacts) Delete(id uint) error {
+	result := repo.db.
+		Where("id = ?", id).
+		Delete(&models.Contact{})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }

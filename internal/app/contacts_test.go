@@ -12,7 +12,7 @@ import (
 
 type contactsTestSuite struct {
 	suite.Suite
-	Contacts  *mocks.Contacts
+	repo      *mocks.Contacts
 	underTest Contacts
 }
 
@@ -21,8 +21,8 @@ func TestContactsSuite(t *testing.T) {
 }
 
 func (suite *contactsTestSuite) SetupTest() {
-	suite.Contacts = &mocks.Contacts{}
-	suite.underTest = NewContacts(suite.Contacts)
+	suite.repo = &mocks.Contacts{}
+	suite.underTest = NewContacts(suite.repo)
 }
 
 func (suite *contactsTestSuite) TestCreate_WhenSuccess() {
@@ -33,7 +33,7 @@ func (suite *contactsTestSuite) TestCreate_WhenSuccess() {
 
 	expected := models.Contact{Name: contact.Name, PhoneNumber: contact.PhoneNumber, ID: 1}
 
-	suite.Contacts.Mock.On("Create", models.Contact{
+	suite.repo.Mock.On("Create", models.Contact{
 		Name:        contact.Name,
 		PhoneNumber: contact.PhoneNumber,
 	}).Return(expected, nil)
@@ -52,7 +52,7 @@ func (suite *contactsTestSuite) TestCreate_WhenFail() {
 
 	expectedError := errors.New("some error")
 
-	suite.Contacts.Mock.On("Create", models.Contact{
+	suite.repo.Mock.On("Create", models.Contact{
 		Name:        contact.Name,
 		PhoneNumber: contact.PhoneNumber,
 	}).Return(models.Contact{}, expectedError)
@@ -66,7 +66,7 @@ func (suite *contactsTestSuite) TestCreate_WhenFail() {
 func (suite *contactsTestSuite) TestGetByID_WhenSuccess() {
 	expected := models.Contact{Name: "test", PhoneNumber: "+570000000", ID: 1}
 
-	suite.Contacts.Mock.On("GetByID", uint(1)).Return(expected, nil)
+	suite.repo.Mock.On("GetByID", uint(1)).Return(expected, nil)
 
 	contactModel, err := suite.underTest.GetByID(uint(1))
 
@@ -77,7 +77,7 @@ func (suite *contactsTestSuite) TestGetByID_WhenSuccess() {
 func (suite *contactsTestSuite) TestGetByID_WhenFail() {
 	expectedError := errors.New("some error")
 
-	suite.Contacts.Mock.On("GetByID", uint(1)).Return(models.Contact{}, expectedError)
+	suite.repo.Mock.On("GetByID", uint(1)).Return(models.Contact{}, expectedError)
 
 	contactModel, err := suite.underTest.GetByID(uint(1))
 
@@ -93,8 +93,8 @@ func (suite *contactsTestSuite) TestUpdate_WhenSuccess() {
 
 	expected := models.Contact{Name: contact.Name, PhoneNumber: contact.PhoneNumber, ID: 1}
 
-	suite.Contacts.Mock.On("GetByID", uint(1)).Return(models.Contact{}, nil)
-	suite.Contacts.Mock.On("Update", uint(1), models.Contact{
+	suite.repo.Mock.On("GetByID", uint(1)).Return(models.Contact{}, nil)
+	suite.repo.Mock.On("Update", uint(1), models.Contact{
 		Name:        contact.Name,
 		PhoneNumber: contact.PhoneNumber,
 	}).Return(expected, nil)
@@ -113,8 +113,8 @@ func (suite *contactsTestSuite) TestUpdate_WhenFail() {
 
 	expectedError := errors.New("some error")
 
-	suite.Contacts.Mock.On("GetByID", uint(1)).Return(models.Contact{}, nil)
-	suite.Contacts.Mock.On("Update", uint(1), models.Contact{
+	suite.repo.Mock.On("GetByID", uint(1)).Return(models.Contact{}, nil)
+	suite.repo.Mock.On("Update", uint(1), models.Contact{
 		Name:        contact.Name,
 		PhoneNumber: contact.PhoneNumber,
 	}).Return(models.Contact{}, expectedError)
@@ -132,10 +132,34 @@ func (suite *contactsTestSuite) TestUpdate_WhenGetByIDFail() {
 	}
 	expectedError := errors.New("some error")
 
-	suite.Contacts.Mock.On("GetByID", uint(1)).Return(models.Contact{}, expectedError)
+	suite.repo.Mock.On("GetByID", uint(1)).Return(models.Contact{}, expectedError)
 
 	contactModel, err := suite.underTest.Update(uint(1), contact)
 
 	suite.Error(err)
 	suite.Equal(models.Contact{}, contactModel)
+}
+
+func (suite *contactsTestSuite) TestDelete_WhenSuccess() {
+	suite.repo.Mock.On("GetByID", uint(1)).Return(models.Contact{}, nil)
+	suite.repo.Mock.On("Delete", uint(1)).Return(nil)
+
+	suite.NoError(suite.underTest.Delete(uint(1)))
+}
+
+func (suite *contactsTestSuite) TestDelete_WhenGetByIDFail() {
+	expectedError := errors.New("some error")
+
+	suite.repo.Mock.On("GetByID", uint(1)).Return(models.Contact{}, expectedError)
+
+	suite.Error(suite.underTest.Delete(uint(1)))
+}
+
+func (suite *contactsTestSuite) TestDelete_WhenFail() {
+	expectedError := errors.New("some error")
+
+	suite.repo.Mock.On("GetByID", uint(1)).Return(models.Contact{}, nil)
+	suite.repo.Mock.On("Delete", uint(1)).Return(expectedError)
+
+	suite.Error(suite.underTest.Delete(uint(1)))
 }

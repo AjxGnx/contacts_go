@@ -26,4 +26,5 @@ func (routes *contacts) Resource(c *echo.Group) {
 	groupPath.POST("", routes.handler.Create)
 	groupPath.GET(":id", routes.handler.GetByID)
 	groupPath.PUT(":id", routes.handler.Update)
+	groupPath.DELETE(":id", routes.handler.Delete)
 }

@@ -10,6 +10,7 @@ type Contacts interface {
 	Create(contact dto.Contact) (models.Contact, error)
 	GetByID(id uint) (models.Contact, error)
 	Update(id uint, contact dto.Contact) (models.Contact, error)
+	Delete(id uint) error
 }
 
 type contacts struct {
@@ -36,4 +37,12 @@ func (app *contacts) Update(id uint, contact dto.Contact) (models.Contact, error
 	}
 
 	return app.repo.Update(id, contact.ToModel())
+}
+
+func (app *contacts) Delete(id uint) error {
+	if _, err := app.GetByID(id); err != nil {
+		return err
+	}
+
+	return app.repo.Delete(id)
 }

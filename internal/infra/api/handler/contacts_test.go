@@ -239,6 +239,60 @@ func (suite *contactsTestSuite) TestUpdate_WhenBindFail() {
 	suite.Equal(http.StatusBadRequest, httpError.Code)
 }
 
+func (suite *contactsTestSuite) TestDelete_WhenSuccess() {
+	paramValue := 10
+	param := "id"
+
+	suite.Contacts.Mock.On("Delete", uint(paramValue)).
+		Return(nil)
+
+	setupCase := SetupControllerCase(http.MethodDelete, "/api/contacts/10", nil)
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	setupCase.context.SetParamNames(param)
+	setupCase.context.SetParamValues(strconv.Itoa(paramValue))
+
+	suite.NoError(suite.underTest.Delete(setupCase.context))
+	suite.Equal(http.StatusOK, setupCase.Res.Code)
+}
+
+func (suite *contactsTestSuite) TestDelete_WhenContactNotFound() {
+	var httpError *echo.HTTPError
+
+	paramValue := 10
+	param := "id"
+	expectedError := errors.New("record not found")
+
+	suite.Contacts.Mock.On("Delete", uint(paramValue)).
+		Return(expectedError)
+
+	setupCase := SetupControllerCase(http.MethodDelete, "/api/contacts/10", nil)
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	setupCase.context.SetParamNames(param)
+	setupCase.context.SetParamValues(strconv.Itoa(paramValue))
+
+	suite.ErrorAs(suite.underTest.Delete(setupCase.context), &httpError)
+	suite.Equal(http.StatusNotFound, httpError.Code)
+}
+
+func (suite *contactsTestSuite) TestDelete_WhenFail() {
+	var httpError *echo.HTTPError
+
+	paramValue := 10
+	param := "id"
+	expectedError := errors.New("some error")
+
+	suite.Contacts.Mock.On("Delete", uint(paramValue)).
+		Return(expectedError)
+
+	setupCase := SetupControllerCase(http.MethodDelete, "/api/contacts/10", nil)
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	setupCase.context.SetParamNames(param)
+	setupCase.context.SetParamValues(strconv.Itoa(paramValue))
+
+	suite.ErrorAs(suite.underTest.Delete(setupCase.context), &httpError)
+	suite.Equal(http.StatusInternalServerError, httpError.Code)
+}
+
 type ControllerCase struct {
 	Req     *http.Request
 	Res     *httptest.ResponseRecorder

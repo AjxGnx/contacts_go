@@ -15,6 +15,7 @@ type Contacts interface {
 	Create(ctx echo.Context) error
 	GetByID(ctx echo.Context) error
 	Update(ctx echo.Context) error
+	Delete(ctx echo.Context) error
 }
 
 type contacts struct {
@@ -49,8 +50,8 @@ func (handler *contacts) Create(ctx echo.Context) error {
 	})
 }
 
-func (handler *contacts) GetByID(context echo.Context) error {
-	id, _ := strconv.Atoi(context.Param("id"))
+func (handler *contacts) GetByID(ctx echo.Context) error {
+	id, _ := strconv.Atoi(ctx.Param("id"))
 
 	contact, err := handler.app.GetByID(uint(id))
 
@@ -58,7 +59,7 @@ func (handler *contacts) GetByID(context echo.Context) error {
 		return errorValidator(err.Error(), id)
 	}
 
-	return context.JSON(http.StatusOK, dto.Message{
+	return ctx.JSON(http.StatusOK, dto.Message{
 		Message: "contact successfully loaded",
 		Data:    contact,
 	})
@@ -81,6 +82,18 @@ func (handler *contacts) Update(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, dto.Message{
 		Message: "contact updated successfully",
 		Data:    result,
+	})
+}
+
+func (handler *contacts) Delete(ctx echo.Context) error {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+
+	if err := handler.app.Delete(uint(id)); err != nil {
+		return errorValidator(err.Error(), id)
+	}
+
+	return ctx.JSON(http.StatusOK, dto.Message{
+		Message: "contact successfully deleted",
 	})
 }
 
