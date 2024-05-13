@@ -20,3 +20,12 @@ func TestContact_ToModel(t *testing.T) {
 
 	assert.Equal(t, contactExpected, contact.ToModel())
 }
+
+func TestContact_Validate(t *testing.T) {
+	assert.Error(t, Contact{}.Validate())
+
+	assert.NoError(t, Contact{
+		Name:        "name",
+		PhoneNumber: "phone number",
+	}.Validate())
+}

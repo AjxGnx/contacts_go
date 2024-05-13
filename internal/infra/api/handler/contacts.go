@@ -36,6 +36,10 @@ func (handler *contacts) Create(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	if err := contact.Validate(); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	result, err := handler.app.Create(contact)
 	if err != nil {
 		if strings.Contains(err.Error(), "SQLSTATE 23505") {

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/AjxGnx/contacts-go/internal/domain/dto"
@@ -38,6 +39,20 @@ func (suite *contactsTestSuite) TestCreate_WhenBindFail() {
 	body, _ := json.Marshal("")
 
 	setupCase := SetupControllerCase(http.MethodPost, "/api/contacts/", bytes.NewBuffer(body))
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	suite.ErrorAs(suite.underTest.Create(setupCase.context), &httpError)
+	suite.Equal(http.StatusBadRequest, httpError.Code)
+}
+
+func (suite *contactsTestSuite) TestCreate_WhenValidateFail() {
+	var httpError *echo.HTTPError
+
+	body := `{
+		"name": "some string"
+	}`
+
+	setupCase := SetupControllerCase(http.MethodPost, "/api/exercise/numbers/", strings.NewReader(body))
 	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.ErrorAs(suite.underTest.Create(setupCase.context), &httpError)
