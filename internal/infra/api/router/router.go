@@ -1,6 +1,7 @@
 package router
 
 import (
+	_ "github.com/AjxGnx/contacts-go/docs"
 	"github.com/AjxGnx/contacts-go/internal/infra/api/handler"
 	"github.com/AjxGnx/contacts-go/internal/infra/api/router/group"
 	"github.com/labstack/echo/v4"

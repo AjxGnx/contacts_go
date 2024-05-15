@@ -29,6 +29,16 @@ func NewContacts(app app.Contacts) Contacts {
 	}
 }
 
+// @Tags         Contacts
+// @Summary      Create a contact
+// @Description  Create a contact
+// @Accept       json
+// @Produce      json
+// @Param        request  body      dto.Contact  true  "Request Body"
+// @Success      200      {object}  dto.Message{data=models.Contact}
+// @Failure      400      {object}  dto.MessageError
+// @Failure      500      {object}  dto.MessageError
+// @Router       /contacts/ [post]
 func (handler *contacts) Create(ctx echo.Context) error {
 	var contact dto.Contact
 
@@ -55,6 +65,16 @@ func (handler *contacts) Create(ctx echo.Context) error {
 	})
 }
 
+// @Tags         Contacts
+// @Summary      Get Contact by id
+// @Description  Get Contact by id
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "value of record to find"
+// @Success      200      {object}  models.Contact
+// @Failure      404      {object}  dto.MessageError
+// @Failure      500      {object}  dto.MessageError
+// @Router       /contacts/{id} [get]
 func (handler *contacts) GetByID(ctx echo.Context) error {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
@@ -70,6 +90,17 @@ func (handler *contacts) GetByID(ctx echo.Context) error {
 	})
 }
 
+// @Tags         Contacts
+// @Summary      Update Contact by id
+// @Description  Update Contact by id
+// @Accept       json
+// @Produce      json
+// @Param        request  body      dto.Contact  true  "Request Body"
+// @Param        id       path      int          true  "value of record to update"
+// @Success      200  {object}  models.Contact
+// @Failure      404  {object}  dto.MessageError
+// @Failure      500  {object}  dto.MessageError
+// @Router       /contacts/{id} [put]
 func (handler *contacts) Update(ctx echo.Context) error {
 	var contact dto.Contact
 
@@ -90,6 +121,16 @@ func (handler *contacts) Update(ctx echo.Context) error {
 	})
 }
 
+// @Tags         Contacts
+// @Summary      Delete Contact by id
+// @Description  Delete Contact by id
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "value of record to delete"
+// @Success      200  {object}  dto.Message{}
+// @Failure      404  {object}  dto.MessageError
+// @Failure      500  {object}  dto.MessageError
+// @Router       /contacts/{id} [delete]
 func (handler *contacts) Delete(ctx echo.Context) error {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
@@ -102,6 +143,16 @@ func (handler *contacts) Delete(ctx echo.Context) error {
 	})
 }
 
+// @Tags         Contacts
+// @Summary      Get contacts
+// @Description  Get contacts using pagination
+// @Accept       json
+// @Produce      json
+// @Param        limit  query     string  true  "limit to find records"
+// @Param        page   query     string  true  "page to find records"
+// @Success      200    {object}  dto.Message{data=models.Paginator{records=[]models.Contact}}
+// @Failure      500    {object}  dto.MessageError
+// @Router       /contacts/ [get]
 func (handler *contacts) Get(context echo.Context) error {
 	page, _ := strconv.Atoi(context.QueryParam("page"))
 	limit, _ := strconv.Atoi(context.QueryParam("limit"))

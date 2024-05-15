@@ -1,0 +1,248 @@
+basePath: /api
+definitions:
+  dto.Contact:
+    properties:
+      name:
+        type: string
+      phone_number:
+        type: string
+    required:
+    - name
+    - phone_number
+    type: object
+  dto.Message:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  dto.MessageError:
+    properties:
+      message:
+        type: string
+    type: object
+  handler.Health:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  models.Contact:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      phone_number:
+        type: string
+    type: object
+  models.Paginator:
+    properties:
+      limit:
+        type: integer
+      next_page:
+        type: integer
+      offset:
+        type: integer
+      page:
+        type: integer
+      prev_page:
+        type: integer
+      records: {}
+      total_page:
+        type: integer
+      total_record:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: Contacts Manager
+  license:
+    name: Alirio Gutierrez
+  title: Contacts
+  version: 1.0.0
+paths:
+  /contacts/:
+    get:
+      consumes:
+      - application/json
+      description: Get contacts using pagination
+      parameters:
+      - description: limit to find records
+        in: query
+        name: limit
+        required: true
+        type: string
+      - description: page to find records
+        in: query
+        name: page
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Message'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/models.Paginator'
+                  - properties:
+                      records:
+                        items:
+                          $ref: '#/definitions/models.Contact'
+                        type: array
+                    type: object
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.MessageError'
+      summary: Get contacts
+      tags:
+      - Contacts
+    post:
+      consumes:
+      - application/json
+      description: Create a contact
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Contact'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Message'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Contact'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.MessageError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.MessageError'
+      summary: Create a contact
+      tags:
+      - Contacts
+  /contacts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete Contact by id
+      parameters:
+      - description: value of record to delete
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Message'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.MessageError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.MessageError'
+      summary: Delete Contact by id
+      tags:
+      - Contacts
+    get:
+      consumes:
+      - application/json
+      description: Get Contact by id
+      parameters:
+      - description: value of record to find
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Contact'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.MessageError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.MessageError'
+      summary: Get Contact by id
+      tags:
+      - Contacts
+    put:
+      consumes:
+      - application/json
+      description: Update Contact by id
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Contact'
+      - description: value of record to update
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Contact'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.MessageError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.MessageError'
+      summary: Update Contact by id
+      tags:
+      - Contacts
+  /health:
+    get:
+      description: health service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Health'
+      summary: Check if service is active
+      tags:
+      - Health
+schemes:
+- http
+swagger: "2.0"
