@@ -253,6 +253,27 @@ func (suite *contactsTestSuite) TestUpdate_WhenBindFail() {
 	suite.ErrorAs(suite.underTest.Update(setupCase.context), &httpError)
 	suite.Equal(http.StatusBadRequest, httpError.Code)
 }
+func (suite *contactsTestSuite) TestUpdate_WhenValidateFail() {
+	var httpError *echo.HTTPError
+
+	paramValue := 10
+	param := "id"
+
+	contact := dto.Contact{
+		Name:        "test3",
+		PhoneNumber: "",
+	}
+
+	body, _ := json.Marshal(contact)
+
+	setupCase := SetupControllerCase(http.MethodPut, "/api/contacts/10", bytes.NewBuffer(body))
+	setupCase.Req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+	setupCase.context.SetParamNames(param)
+	setupCase.context.SetParamValues(strconv.Itoa(paramValue))
+
+	suite.ErrorAs(suite.underTest.Update(setupCase.context), &httpError)
+	suite.Equal(http.StatusBadRequest, httpError.Code)
+}
 
 func (suite *contactsTestSuite) TestDelete_WhenSuccess() {
 	paramValue := 10

@@ -110,6 +110,10 @@ func (handler *contacts) Update(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	if err := contact.Validate(); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	result, err := handler.app.Update(uint(contactID), contact)
 	if err != nil {
 		return errorValidator(err.Error(), contactID)
